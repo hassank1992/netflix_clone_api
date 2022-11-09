@@ -1,6 +1,10 @@
 const express = require('express')
+
 const app = express()
 const port = 3000
+var cors=require('cors');
+var jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const{Schema}=mongoose;
 mongoose.connect('mongodb+srv://hk:hQpc9Dp6RsMcYYca@cluster0.0fcj7nh.mongodb.net/hk?retryWrites=true&w=majority');
@@ -23,8 +27,18 @@ const User= mongoose.model('Users', new Schema({
   required:true
 }
 }));
-
-
+function generateAccessToken(user){
+const payrol={
+  id:user.id,
+  name:user.name
+}
+return jwt.sign(payrol,"hassan",{expiresIn:'7200s'})
+}
+app.use(cors());
+//app.use((req,res,next)=>{
+// res.header("Access-Control-Allow-Origin","*")
+// next();
+// })
 app.use(express.json());
 app.get('/', (req, res) => {
 
@@ -49,7 +63,7 @@ newUser.save((err,user)=>{
   console.log("all is good");
   console.log(user)
   console.log("registered!")
-  res.send("registered");
+  res.send({data:"registered"});
 
   }
 })
@@ -58,12 +72,17 @@ app.post('/login', (req, res) => {
    // console.log(req.body);
     const password =req.body.password;
     const email=req.body.email;
+    console.log(email)
     User.findOne({email:email,password:password},(err,user)=>{
-      console.log(user)
+      
       if(user){
+        console.log(user);
+        const token=generateAccessToken(user);
+        console.log(token)
         res.send(
           {
-              status:'valid'
+              status:'valid',
+              token:token
           })
       }else{
         console.log(err);
