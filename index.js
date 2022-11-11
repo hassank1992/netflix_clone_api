@@ -27,23 +27,53 @@ const User= mongoose.model('Users', new Schema({
   required:true
 }
 }));
+
+
 function generateAccessToken(user){
-const payrol={
-  id:user.id,
-  name:user.name
-}
-return jwt.sign(payrol,"hassan",{expiresIn:'7200s'})
-}
+  const payrol={
+    id:user.id,
+    name:user.name
+  }
+  return jwt.sign(payrol,"hassan",{expiresIn:'7200s'})
+  }
+
+
 app.use(cors());
 //app.use((req,res,next)=>{
 // res.header("Access-Control-Allow-Origin","*")
 // next();
 // })
 app.use(express.json());
+
+
+function authenticateToken(req,res,next){
+  console.log(req.headers)
+  const authHeaderToken = req.headers['authorization']
+  if(!authHeaderToken) return res.sendStatus(401)
+  jwt.verify(authHeaderToken,"hassan",(err,user)=>{
+    if(err) return res.sendStatus(403)
+    req.user=user;
+   // console.log(user)
+    next();
+  })
+}
+
+
 app.get('/', (req, res) => {
 
   res.send('Hello World!')
 })
+app.get('/wishlist',authenticateToken,(req,res)=>{
+console.log(req.user)
+res.send({
+  items:[
+    'arrow',
+    'flash',
+    'super man'
+  ]
+});
+})
+
 
 app.post('/register',(req,res)=>{
 const newUser= new User({
