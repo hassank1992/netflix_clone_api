@@ -27,7 +27,17 @@ const User= mongoose.model('Users', new Schema({
   required:true
 }
 }));
-
+const WishListSchema =new Schema({
+  user:{
+    type:Schema.Types.ObjectId,
+    ref:'Users'
+  },
+  movieId:Number,
+  backdrop_path:String,
+  title: String
+})
+WishListSchema.index({user:1,movieId:1},{unique:true})
+const WishList=mongoose.model('WishList',WishListSchema)
 
 function generateAccessToken(user){
   const payrol={
@@ -47,7 +57,6 @@ app.use(express.json());
 
 
 function authenticateToken(req,res,next){
-  console.log(req.headers)
   const authHeaderToken = req.headers['authorization']
   if(!authHeaderToken) return res.sendStatus(401)
   jwt.verify(authHeaderToken,"hassan",(err,user)=>{
@@ -63,15 +72,52 @@ app.get('/', (req, res) => {
 
   res.send('Hello World!')
 })
+
+ app.post('/wishlist',authenticateToken,(req,res)=>{
+const newWishListItem= new WishList({
+  user:req.user.id,
+  movieId:req.body.movieId,
+  backdrop_path:req.body.backdrop_path,
+  title:req.body.title
+})
+
+newWishListItem.save((err,wishListItem)=>{
+  if(err){
+    res.send(400,{
+      status:err
+    })
+  }
+  else{
+    res.send({
+      
+      status:"save"
+    })
+  }})
+
+//   console.log(req.user)
+//  console.log(newWishListItem)
+// res.send({
+//   status:"all good",
+//   items:newWishListItem
+// })
+})
+ 
 app.get('/wishlist',authenticateToken,(req,res)=>{
 console.log(req.user)
-res.send({
-  items:[
-    'arrow',
-    'flash',
-    'super man'
-  ]
-});
+WishList.find({user:req.user.id},(err,docs)=>{
+
+  if(err){
+    res.send(400,{
+      status:err
+    })
+  }
+  else{
+    res.send({
+      status:"good",
+      results:docs
+    })
+  }
+})
 })
 
 
