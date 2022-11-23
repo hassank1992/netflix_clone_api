@@ -12,6 +12,9 @@
   },
   "author": "hassan khan",
   "license": "ISC",
+  "engines":{
+    "node":"16.17.1"
+  },
   "bugs": {
     "url": "https://github.com/hassank1992/netflix_clone_api/issues"
   },
