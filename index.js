@@ -7,7 +7,7 @@ var jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const{Schema}=mongoose;
-mongoose.connect('mongodb+srv://hk:hQpc9Dp6RsMcYYca@cluster0.0fcj7nh.mongodb.net/hk?retryWrites=true&w=majority');
+mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.PASS}@cluster0.0fcj7nh.mongodb.net/${process.env.MONGO_USER}?retryWrites=true&w=majority`);
 // ,{useCreateIndex:true,
 // useUnifiedTropology:true,  
 // useNewUrlParser:true});
@@ -171,6 +171,6 @@ app.post('/login', (req, res) => {
 
   
   })
-app.listen(port, () => {
+app.listen(process.env.PORT || port, () => {
   console.log(`Example app listening on port http://localhost:${port}`)
 })
